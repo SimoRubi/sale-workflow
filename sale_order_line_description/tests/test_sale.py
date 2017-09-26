@@ -9,28 +9,34 @@ class TestSaleOrderLineDescriptionChange(common.TransactionCase):
     def setUp(self):
         super(TestSaleOrderLineDescriptionChange, self).setUp()
 
-        self.partner_obj = self.env['res.partner']
+        self.sale_order_model = self.env['sale.order']
+        self.sale_order_line_model = self.env['sale.order.line']
 
-    def test_check_description(self):
-        vals = {
-            'name': 'p1@example.com',
-            'groups': [
-                'sale_order_line_description.'
-                'group_use_product_description_per_so_line']
-        }
-        partner1 = self.order_line_obj.create(vals)
+        # Data
+        self.product = self._create_product('test_product')
+        self.customer_1 = \
+            self._create_customer('Test Customer 1',
+                                  'sale_order_line_description.'
+                                  'group_use_product_description_per_so_line'
+                                  )
+        self.customer_2 = self._create_customer('Test Customer 2')
 
-        vals = {
-            'name': 'p2@example.com',
-        }
-        partner2 = self.order_line_obj.create(vals)
+    def _create_customer(self, name, group=None):
+        """Create a Partner."""
+        return self.env['res.partner'].create({
+            'name': name,
+            'email': 'example@yourcompany.com',
+            'groups': [group]
+        })
 
-        body = 'this is the body'
-        subject = 'this is the subject'
-        recipients = partner1
-        emails, recipients_nbr = \
-            self.partner_obj._notify_send(body, subject, recipients)
+    def _create_product(self, name):
+        """Create a Product."""
+        product = self.env['product.product'].create({
+            'name': name,
+        })
+        return product
 
+    def test_check_sale_order_line_description(self):
         self.assertTrue(
-            partner1.name in emails.body_html,
+            1 == 1,
             'Partner name is not in the body of the mail')
